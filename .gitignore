@@ -3,3 +3,9 @@
 *.obj
 *.bc
 desktop.ini
+!GoLink.exe
+!x64dbg.exe
+!loaddll.exe
+!mbox.exe
+!nasm.exe
+!ndisasm.exe
