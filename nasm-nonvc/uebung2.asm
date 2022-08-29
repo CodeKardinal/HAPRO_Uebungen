@@ -5,7 +5,7 @@ bits 64
 %include "win32n.inc"
 
 global Start
-
+;test
 section .text
 Start:
     ; 1. Bits 7…4 von EAX sollen in die Bits 3…0 übertragen und negiert werden
