@@ -2,6 +2,8 @@
 *.o
 *.obj
 *.bc
+/.vscode
+/.git
 desktop.ini
 !GoLink.exe
 !x64dbg.exe
