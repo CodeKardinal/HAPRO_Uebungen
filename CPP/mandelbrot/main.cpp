@@ -39,6 +39,43 @@ int mandelbrot(double real, double imag) {
 }
 
 
+int mandelbrot_single(int heigth, int width, double x_start, double y_fin, double dx, double dy, unsigned int palette[])
+{
+	int ticks = GetTickCount();
+	
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < heigth; j++) {
+			double x = x_start + j*dx; // current real value
+			double y = y_fin - i*dy; // current imaginary value
+			
+			int iters = mandelbrot(x,y);
+			putPixel(i, j, palette[iters]);
+		}
+	}
+	return GetTickCount() - ticks;	
+}
+
+
+int mandelbrot_multi(int height, int width, double x_start, double y_fin, double dx, double dy, unsigned int palette[])
+{	
+	int ticks = GetTickCount();
+	
+	double x, y;
+	int iters, i, j;
+		for (i = 0; i < width; i++) {
+			#pragma omp parallel for private(x, y, iters, j) shared (i, width, height) schedule (dynamic, 10)
+			for (j = 0; j < height; j++) {
+				x = x_start + j*dx; // current real value
+				y = y_fin - i*dy; // current imaginary value
+				iters = mandelbrot(x,y);
+				putPixel(i, j, palette[iters]);
+					
+			}
+		}	
+	return GetTickCount() - ticks;
+}
+
+
 int main(int argc, char** argv) {
 	freopen( "CON", "wt", stdout );
 	freopen( "CON", "wt", stderr );
@@ -77,42 +114,45 @@ int main(int argc, char** argv) {
 	0x00FFFFF0,0x00FFFFF2,0x00FFFFF4,0x00FFFFF6,0x00FFFFF8,0x00FFFFFA,0x00FFFFFC,0x00FFFFFE,
 	0x00000000};
 	
-	int width = 1080;
-	int heigth = 1080;
-		
+	int width = 1080, height = 1080, ticks;
+	
 	double x_start = -2.0;
 	double x_fin = 1.0;
 	double y_start = -1.0;
 	double y_fin = 1.0;
 	
-	evt = new SDL_Event;
-	SDL_Init(SDL_INIT_VIDEO);
-	surface = SDL_SetVideoMode(width, heigth, 32, SDL_SWSURFACE);
-	
 	double dx = (x_fin - x_start)/(width - 1);
-	double dy = (y_fin - y_start)/(heigth - 1);
-
+	double dy = (y_fin - y_start)/(height - 1);
+	
+	SDL_Init(SDL_INIT_VIDEO);
+	surface = SDL_SetVideoMode(width, height, 32, SDL_SWSURFACE);
+		
+	evt = new SDL_Event;	
+	do {
+		ticks = mandelbrot_single(height, width, x_start, y_fin, dx, dy, palette);
+		printf("Ticks Single: %i\n", ticks);
+		
+		SDL_UnlockSurface(surface);
+		SDL_Flip(surface);
+		SDL_PollEvent(evt);
+	} while (evt->type != SDL_KEYDOWN);
+	
+	
+	omp_set_num_threads(4);
+	
+	evt = new SDL_Event;
 	do {
 		SDL_LockSurface(surface);
-		
-		int ticks = GetTickCount();
-		
-		for (int i = 0; i < width; i++) {
-			for (int j = 0; j < heigth; j++) {
-				double x = x_start + j*dx; // current real value
-				double y = y_fin - i*dy; // current imaginary value
-				
-				int iters = mandelbrot(x,y);
-				putPixel(i, j, palette[iters]);
-			}
-		}
-		ticks = GetTickCount() - ticks;
-		printf("Ticks: %i\n", ticks);
+	
+		ticks = mandelbrot_multi(width, height, x_start, y_fin, dx, dy, palette);
+		printf("Ticks Multi:  %i\n", ticks);
 
 		SDL_UnlockSurface(surface);
 		SDL_Flip(surface);
 		SDL_PollEvent(evt);
 	} while (evt->type != SDL_KEYDOWN);
+	
+	
 	
 	
 	return 0;
