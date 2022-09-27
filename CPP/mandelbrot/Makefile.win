@@ -10,8 +10,8 @@ LIBS     = -L"C:/Program Files/Dev-CPP/MinGW64/lib32" -L"C:/Program Files/Dev-CP
 INCS     = -I"C:/Program Files/Dev-CPP/MinGW64/include" -I"C:/Program Files/Dev-CPP/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files/Dev-CPP/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include" -I"./include"
 CXXINCS  = -I"C:/Program Files/Dev-CPP/MinGW64/include" -I"C:/Program Files/Dev-CPP/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files/Dev-CPP/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include" -I"C:/Program Files/Dev-CPP/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include/c++" -I"./include"
 BIN      = sdl_project.exe
-CXXFLAGS = $(CXXINCS) -m32 -fopenmp
-CFLAGS   = $(INCS) -m32 -fopenmp
+CXXFLAGS = $(CXXINCS) -march=native -mavx -Ofast -m32 -fopenmp
+CFLAGS   = $(INCS) -march=native -mavx -Ofast -m32 -fopenmp
 RM       = rm.exe -f
 
 .PHONY: all all-before all-after clean clean-custom

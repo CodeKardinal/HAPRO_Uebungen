@@ -62,16 +62,16 @@ int mandelbrot_multi(int height, int width, double x_start, double y_fin, double
 	
 	double x, y;
 	int iters, i, j;
-		for (i = 0; i < width; i++) {
-			#pragma omp parallel for private(x, y, iters, j) shared (i, width, height) schedule (dynamic, 10)
-			for (j = 0; j < height; j++) {
-				x = x_start + j*dx; // current real value
-				y = y_fin - i*dy; // current imaginary value
-				iters = mandelbrot(x,y);
-				putPixel(i, j, palette[iters]);
-					
-			}
-		}	
+	#pragma omp parallel for collapse(2) private(x, y, iters, j) shared (i, width, height) schedule (dynamic, 10)
+	for (i = 0; i < width; i++) {
+		for (j = 0; j < height; j++) {
+			x = x_start + j*dx; // current real value
+			y = y_fin - i*dy; // current imaginary value
+			iters = mandelbrot(x,y);
+			putPixel(i, j, palette[iters]);
+				
+		}
+	}	
 	return GetTickCount() - ticks;
 }
 
